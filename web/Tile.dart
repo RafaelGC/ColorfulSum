@@ -9,10 +9,12 @@ class Tile{
   num x, y;
   num width, height;
   Color color;
-  static final SPEED = 1000; 
+  static final SPEED = 2000; 
   
   num targetX, targetY;
   bool moving;
+  
+  Tile child;
   
   Tile(num width, height){
     x=y=0;
@@ -22,14 +24,21 @@ class Tile{
     this.height = height;
 
     color = new Color.fromRGB(255, 255, 255);
+    
+    child = null;
   }
   
   void render(CanvasRenderingContext2D target){
+    if (child!=null){
+      child.render(target);
+    }
     target.setFillColorRgb(color.r, color.g, color.b);
     target.fillRect(x, y, width, height);
     
     target.setStrokeColorRgb(0, 0, 0);
     target.strokeRect(x, y, width, height);
+    
+    
   }
   
   
@@ -38,6 +47,16 @@ class Tile{
   }
   
   void manage(double deltaTime){
+    
+    if (child!=null){
+      child.manage(deltaTime);
+      
+      //Si el hijo ha terminado con su movimiento, desaparece.
+      if (child.moving==false){
+        child = null;
+      }
+    }
+    
     if (!moving) {return;}
     
     if (x<targetX){

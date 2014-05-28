@@ -28,6 +28,8 @@ class Color{
     
   }
   
+  operator==(Color c) => c.r==r && c.g==g && c.b==b;
+  
   String toString() => "$r,$g,$b";
   
   static Color getRGBFromInt(int number){

@@ -29,13 +29,103 @@ class GameScene extends Scene{
   
   void manageEvents(double deltaTime){
     if (areAllTilesStopped()){
+      
       if (Keyboard.getInstance().isPressed(KeyCode.S)){
+        //Vamos recorriendo columna por columna.
+        for (int x=0; x<cols; x++){
+          
+          //Y en la columna vamos estudiando las distintas casillas.
+          //La que está en la casilla 4 está en su posición ideal, no puede ir más abajo, luego
+          //no nos interesa estudiarla, por eso empezamos por la tercera.
+          
+          for (int y=rows-2; y>=0; y--){
+            
+            int i = xyToIndex(x,y);
+            
+            //Miramos si hay algo en ese hueco, quizá no hay nada.
+            if (tiles[i]!=null){
+              
+              //Pero sí que lo hay, entonces vamos a buscar una casilla por debajo de ésta
+              //que nos sirva. Hay dos posibilidades, que sea una casilla vacía o que sea una casilla
+              //con nuestro mismo valor.
+              
+              int targetY = getFreeRowIn(x,true);
+              
+              //Como nos estamos moviendo hacia abajo, sólo nos interesan las casillas vacías que están
+              //por debajo de la casilla que estamos estudiando, luego ignoramos las que están por encima.
+              if (targetY>y){
+                
+                //Teóricamente, ya tenemos la próxima posición de la casilla, pero hay que estudiar si la
+                //que hay por debajo de targetY es del mismo color para fusionarlas.
+                //Esto sólo lo estudiamos si targetY<rows-1.
+                if (targetY<rows-1){
+                  int nextTile = xyToIndex(x,targetY+1);
+                  if (tiles[nextTile]!=null){
+                    //Ponemos como condición, para que se fusionen, que, además de tener el mismo color,
+                    //la casilla padre no tenga un hijo al que esté gestionando.
+                    if (tiles[nextTile].color==tiles[i].color && tiles[nextTile].child==null){
+                      print("Se puede fusionar con $nextTile");
+                      /* ¡Tienen el mismo color! Los fusionamos.
+                       * Hay que tener en cuenta algo: cuando los fusionamos hay dos casillas que ocupan el mismo
+                       * hueco, y esto hacerlo en una array es imposible: en un mismo lugar no podemos poner dos
+                       * tiles diferentes.
+                       * Para solucionar esto he decidido que la casilla que se mantiene estática se convertirá
+                       * en padre de la casilla que vamos a fusionar y será la casilla padre la que gestiona.
+                       * De este modo, podemos eliminar la casilla que fusionamos del array y que todo esto siga
+                       * su curso.
+                       * */
+                      
+                      //Primero, seleccionamos el nuevo objetivo. Aquí hay dos posibilidades: si nuestro
+                      //objetivo están en movimiento, iremos a su mismo objetivo, al lugar al que se dirige, no
+                      //al que está; si nuestro objetivo está estático, simplemente iremos donde él.
+                      tiles[i].targetX = tiles[i].x; //No cambia, estamos haciendo un movimiento vertical.
+                      if (tiles[nextTile].moving){
+                        tiles[i].targetY = tiles[nextTile].targetY;
+                      }
+                      else{
+                        tiles[i].targetY = tiles[nextTile].y;
+                      }
+                      tiles[i].moving = true;
+                      
+                      //Y ahora ponemos el objeto en el padre.
+                      tiles[nextTile].child = tiles[i];
+                      //Y lo quitamos del array.
+                      tiles[i] = null;
+                      //Ahora será el padre quien lo gestione.
+                      
+                      
+                      //Forzamos la siguiente iteración.
+                      continue;
+                    }
+                  }
+                }
+                
+                int indexTarget = xyToIndex(x,targetY);
+                
+                tiles[indexTarget] = tiles[i];
+                tiles[i] = null;
+                
+                tiles[indexTarget].targetX = tiles[indexTarget].x;
+                tiles[indexTarget].targetY = targetY*100;
+                tiles[indexTarget].moving = true;
+                
+              }
+              
+            }
+            
+          }
+          
+        }
+        
+      }
+      
+      if (Keyboard.getInstance().isPressed(KeyCode.W)){
         for (int x=0;x<cols;x++){
-          for (int y=rows-1; y>=0; y--){
+          for (int y=1; y<rows; y++){
             int i = xyToIndex(x,y);
             if (tiles[i]!=null){
-              int objective = getFreeRowIn(x,true);
-              if (objective>y){
+              int objective = getFreeRowIn(x);
+              if (objective<y){
                 int indexTarget = xyToIndex(x,objective);
                 tiles[indexTarget] = tiles[i];
                 tiles[i] = null;
@@ -49,25 +139,8 @@ class GameScene extends Scene{
         }
       }
       
-      if (Keyboard.getInstance().isPressed(KeyCode.W)){
-        for (int x=0;x<cols;x++){
-          for (int y=1; y<rows; y++){
-            int i = xyToIndex(x,y);
-            if (tiles[i]!=null){
-              int objective = getFreeRowIn(x);
-              if (objective<y){
-                int indexTarget = xyToIndex(x,objective);
-              tiles[indexTarget] = tiles[i];
-              tiles[i] = null;
-              
-              tiles[indexTarget].targetX = tiles[indexTarget].x;
-              tiles[indexTarget].targetY = objective*100;
-              tiles[indexTarget].moving = true;
-            }
-          }
-        }
-      }
-    }
+      
+      
     }
     
   }
@@ -114,8 +187,8 @@ class GameScene extends Scene{
     }
   }
   
-  int getFreeRowIn(int col, [bool invertido=false]){
-    if (invertido){
+  int getFreeRowIn(int col, [bool invert=false]){
+    if (invert){
       for (int y=rows-1; y>0; y--){
         if (tiles[xyToIndex(col,y)]==null){
           return y;
@@ -133,6 +206,25 @@ class GameScene extends Scene{
     }
   }
   
+  int getFreeColIn(int row, [bool invert=false]){
+    if (invert){
+      for (int x=cols-1; x>0; x--){
+        if (tiles[xyToIndex(x,row)]==null){
+          return x;
+        }
+      }
+      return -1;
+    }
+    else{
+      for (int x=0; x<cols; x++){
+        if (tiles[xyToIndex(x,row)]==null){
+          return x;
+        }
+      }
+      return -1;
+    }
+  }
+  
   int xyToIndex(int x, int y){
     return y*cols+x;
   }
@@ -143,8 +235,9 @@ class GameScene extends Scene{
   }
   
   void generateRandomStartingTile(){
-    putTileIn(0,3,new Color.fromRGB(240, 240, 200));
-    putTileIn(0,1,new Color.fromRGB(240, 240, 240));
+    putTileIn(0,0,new Color.fromRGB(240, 240, 240));
+    putTileIn(0,2,new Color.fromRGB(240, 240, 240));
+    putTileIn(0,4,new Color.fromRGB(240, 240, 240));
     
   }
   
