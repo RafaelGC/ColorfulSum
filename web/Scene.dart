@@ -9,29 +9,29 @@ abstract class Scene{
   CanvasRenderingContext2D target;
   num width, height;
   
-  int _currentState;
+  int currentState;
   
   Scene(CanvasRenderingContext2D target, num width, num height){
     this.target = target;
     this.width = width;
     this.height = height;
     
-    _currentState = INACTIVE;
+    currentState = INACTIVE;
   }
   
   void onActivate(){
-    _currentState = ACTIVE;
+    currentState = ACTIVE;
   }
   void onDeactive(){
-    _currentState = INACTIVE;
+    currentState = INACTIVE;
   }
   void onPause(){
-    _currentState = PAUSED;
+    currentState = PAUSED;
   }
   
   void gameloop(double deltaTime){
-    if (_currentState!=INACTIVE){
-      if (_currentState==ACTIVE){
+    if (currentState!=INACTIVE){
+      if (currentState==ACTIVE){
         manageEvents(deltaTime);
         logic(deltaTime);
       }

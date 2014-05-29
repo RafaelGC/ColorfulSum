@@ -5,17 +5,32 @@ import "Scene.dart";
 import "dart:async";
 import "dart:html";
 
-List<Scene> _scenes;
+Map<String,Scene> _scenes;
 
 num _previousTime;
 
 void initialize(){
-  _scenes = new List<Scene>();
+  _scenes = new Map<String,Scene>();
   _previousTime = 0;
 }
 
-void addScene(Scene scene){
-  _scenes.add(scene);
+void addScene(String name, Scene scene){
+  _scenes[name] = scene;
+}
+
+void activateScene(String name){
+  Scene scene = _scenes[name];
+  scene.onActivate();
+}
+
+void deactivateScene(String name){
+  Scene scene = _scenes[name];
+  scene.onDeactive();
+}
+
+void pauseScene(String name){
+  Scene scene = _scenes[name];
+  scene.onPause();
 }
 
 void loop(Timer t){
@@ -23,8 +38,9 @@ void loop(Timer t){
   num now = window.performance.now();
   num deltaTime = (now-_previousTime)/1000;
   _previousTime = now;
-  
-  for (Scene scene in _scenes){
+
+  Iterable<Scene> iterator = _scenes.values;
+  for (Scene scene in iterator){
     scene.gameloop(deltaTime);
   }
 }
