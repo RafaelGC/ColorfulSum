@@ -80,7 +80,7 @@ class Tile{
         colorId++;
         //Llamamos al listener (aunque no debería ser nunca nulo, compruebo si lo es).
         if (hasBeenCollidedListener!=null){
-          hasBeenCollidedListener.hasBeenCollided();
+          hasBeenCollidedListener.hasBeenCollided(this);
         }
       }
     }

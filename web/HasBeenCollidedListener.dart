@@ -1,3 +1,7 @@
+library HasBeenCollidedListener;
+
+import "Tile.dart";
+
 abstract class HasBeenCollidedListener{
-  void hasBeenCollided();
+  void hasBeenCollided(Tile tile);
 }

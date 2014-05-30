@@ -1,6 +1,6 @@
 
 body {
-  background-color: #F8F8F8;
+  background-color: rgb(255,255,230);
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   font-weight: normal;
@@ -10,6 +10,16 @@ body {
 
 h1, p {
   color: #333;
+}
+
+.score{
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
+  font-size:20pt;
+}
+
+h1{
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
+  font-size:26pt;
 }
 
 #sample_container_id {
@@ -26,4 +36,10 @@ h1, p {
   margin-top: 140px;
   -webkit-user-select: none;
   user-select: none;
+}
+
+#canvas{
+  -webkit-box-shadow: 0px 0px 10px 7px rgba(255,255,204,1);
+  -moz-box-shadow: 0px 0px 10px 7px rgba(255,255,204,1);
+  box-shadow: 0px 0px 10px 7px rgba(255,255,204,1);
 }

@@ -20,4 +20,11 @@ void initialize(){
   colorList.add(new Color.fromRGB(255,122,122));
   colorList.add(new Color.fromRGB(255,61,61));
   
+  //Difícilmente se superará esto.
+  
+  colorList.add(new Color.fromRGB(255,0,0));
+  for (int i=0; i<7; i++){
+    colorList.add(new Color.fromRGB(255-(30*i),0,0));
+  }
+  
 }

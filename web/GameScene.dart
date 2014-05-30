@@ -19,6 +19,10 @@ class GameScene extends Scene implements HasBeenCollidedListener{
   
   bool wHasBeenReleased, aHasBeenReleased, sHasBeenReleased, dHasBeenReleased;
   
+  int score;
+  int bestScore;
+  SpanElement scoreElement, bestScoreElement;
+  
   GameScene(CanvasRenderingContext2D target, num width, num height):super(target,width,height){
     rows = 4;
     cols = 4;
@@ -39,6 +43,11 @@ class GameScene extends Scene implements HasBeenCollidedListener{
     sHasBeenReleased = true;
     dHasBeenReleased = true;
     
+    score = 0;
+    bestScore = 0;
+    scoreElement = querySelector("#score");
+    bestScoreElement = querySelector("#bestScore");
+    
   }
   
   void onActivate(){
@@ -46,20 +55,32 @@ class GameScene extends Scene implements HasBeenCollidedListener{
     clearMap();
     generateStartingTiles();
     aTileHasBeenAlreadyGenerated = true;
+    
+    score = 0;
+    scoreElement.innerHtml = "0";
   }
   
   void manageEvents(double deltaTime){
     if (areAllTilesStopped()){
-      
-      if (aTileHasBeenAlreadyGenerated==false){
-        if (this.isTheBoardFull()){
-          mySceneManager.activateScene("gameOverScene");
-          this.onPause();
+      if (this.countFreeTiles()==0){
+        if (this.someTileAnimated()==false){
+          if (!this.isThereAFusibleTile()){
+            
+            if (score>bestScore){
+              bestScore = score;
+              bestScoreElement.innerHtml = bestScore.toString();
+            }
+            
+            mySceneManager.activateScene("gameOverScene");
+            this.onPause();
+          }
         }
-        else{
+      }
+      else{
+        if (aTileHasBeenAlreadyGenerated==false){
+          aTileHasBeenAlreadyGenerated = true;
           this.generateRandomTile();
         }
-        aTileHasBeenAlreadyGenerated = true;
       }
       
       if (Keyboard.getInstance().isPressed(KeyCode.S)){
@@ -341,7 +362,8 @@ class GameScene extends Scene implements HasBeenCollidedListener{
   }
   
   void render(){
-    target.setFillColorRgb(100, 100, 100);
+    target.globalAlpha = 1;
+    target.setFillColorRgb(255, 255, 204);
     target.fillRect(0, 0, width, height);
 
     for (Tile tile in tiles){
@@ -351,16 +373,10 @@ class GameScene extends Scene implements HasBeenCollidedListener{
     }
   }
   
-  void hasBeenCollided(){
-  }
-  
-  bool isTheBoardFull(){
-    for (Tile t in tiles){
-      if (t==null){
-        return false;
-      }
-    }
-    return true;
+  void hasBeenCollided(Tile t){
+    score+=(t.colorId*100);
+    scoreElement.innerHtml = score.toString();
+    
   }
   
   bool areAllTilesStopped(){
@@ -583,6 +599,67 @@ class GameScene extends Scene implements HasBeenCollidedListener{
     for (int i = 0; i<tiles.length; i++){
       if (copyTiles[i]!=tiles[i]){
         print(i);
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  bool isThereAFusibleTile(){
+    for (int i=0; i<tiles.length; i++){
+      if (canIFusion(i)){
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  bool canIFusion(int index){
+    if (tiles[index]==null) {return false;}
+    
+    Point<int> myPosition = this.xyFromIndex(index);
+    int myPosX = myPosition.x;
+    int myPosY = myPosition.y;
+    
+    //Miramos hacia arriba.
+    if (myPosY>0){
+      int i = xyToIndex(myPosX,myPosY-1);
+      if (tiles[i]!=null && tiles[i].colorId==tiles[index].colorId){
+        return true;
+      }
+    }
+    
+    //Miramos hacia abajo.
+    if (myPosY<(rows-1)){
+      int i = xyToIndex(myPosX,myPosY+1);
+      if (tiles[i]!=null && tiles[i].colorId==tiles[index].colorId){
+        return true;
+      }
+    }
+    
+    //Miramos hacia la izquierda.
+    if (myPosX>0){
+      int i = xyToIndex(myPosX-1,myPosY);
+      if (tiles[i]!=null && tiles[i].colorId==tiles[index].colorId){
+        return true;
+      }
+    }
+    
+    //Miramos hacia la derecha.
+    if (myPosX<(cols-1)){
+      int i = xyToIndex(myPosX+1,myPosY);
+      if (tiles[i]!=null && tiles[i].colorId==tiles[index].colorId){
+        return true;
+      }
+    }
+    
+    return false;
+    
+  }
+  
+  bool someTileAnimated(){
+    for (int i = 0; i<tiles.length; i++){
+      if (tiles[i].animation){
         return true;
       }
     }

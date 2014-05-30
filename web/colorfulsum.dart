@@ -9,7 +9,16 @@ void main() {
   
   myColorList.initialize();
   
+
+  
   CanvasElement canvas = querySelector("#canvas");
+  
+  print(window.innerWidth);
+  
+  if (window.innerWidth<canvas.width){
+    canvas.width = window.innerWidth;
+  }
+  
   mySceneManager.initialize();
   
   GameScene gameScene = new GameScene(canvas.context2D,canvas.width,canvas.height);
