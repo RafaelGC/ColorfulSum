@@ -7,12 +7,11 @@ import "SceneManager.dart" as mySceneManager;
 import "Scene.dart";
 import "Keyboard.dart";
 import "Tile.dart";
-import "Color.dart";
 import "HasBeenCollidedListener.dart";
 
 class GameScene extends Scene implements HasBeenCollidedListener{
   
-  List<Tile>tiles;
+  List<Tile>tiles, copyTiles;
   num rows, cols;
   double tileWidth, tileHeight;
   
@@ -28,8 +27,10 @@ class GameScene extends Scene implements HasBeenCollidedListener{
     tileHeight = height/rows;
     
     tiles = new List<Tile>();
+    copyTiles= new List<Tile>();
     for (int i = 0; i<rows*cols; i++){
       tiles.add(null);
+      copyTiles.add(null);
     }
     
     
@@ -49,6 +50,7 @@ class GameScene extends Scene implements HasBeenCollidedListener{
   
   void manageEvents(double deltaTime){
     if (areAllTilesStopped()){
+      
       if (aTileHasBeenAlreadyGenerated==false){
         if (this.isTheBoardFull()){
           mySceneManager.activateScene("gameOverScene");
@@ -59,10 +61,11 @@ class GameScene extends Scene implements HasBeenCollidedListener{
         }
         aTileHasBeenAlreadyGenerated = true;
       }
+      
       if (Keyboard.getInstance().isPressed(KeyCode.S)){
         if (sHasBeenReleased){
-          aTileHasBeenAlreadyGenerated = false;
           sHasBeenReleased = false;
+          copy();
           
           //Vamos recorriendo columna por columna.
           for (int x=0; x<cols; x++){
@@ -85,7 +88,7 @@ class GameScene extends Scene implements HasBeenCollidedListener{
                 
                 //Esta variable nos devolverá el número de la fila donde haya una casilla con la que nos podamos
                 //fusionar, si no hay tal casilla, la variable valdrá -1.
-                int targetFusionY = getSameColorTileInCol(x,y,tiles[i].color);
+                int targetFusionY = getSameColorTileInCol(x,y,tiles[i].colorId);
                 
                 //En el caso de que haya alguna casilla a la que nos podamos fusionar y, además, con esa casilla
                 //no se esté combinando ninguna otra...
@@ -142,6 +145,11 @@ class GameScene extends Scene implements HasBeenCollidedListener{
             }
             
           }
+          
+          if (hasChanged()){
+            aTileHasBeenAlreadyGenerated = false;
+          }
+          
         }
         return; //Importante, si no, a veces se bloquean las casillas y se quedan inmóviles.
         
@@ -152,7 +160,7 @@ class GameScene extends Scene implements HasBeenCollidedListener{
       
       if (Keyboard.getInstance().isPressed(KeyCode.W)){
         if (wHasBeenReleased){
-          aTileHasBeenAlreadyGenerated = false;
+          copy();
           wHasBeenReleased = false;
           for (int x=0; x<cols; x++){
             
@@ -160,7 +168,7 @@ class GameScene extends Scene implements HasBeenCollidedListener{
               int i = xyToIndex(x,y);
               if (tiles[i]!=null){
                 
-                int targetFusionY = this.getSameColorTileInCol(x, y, tiles[i].color,true);
+                int targetFusionY = this.getSameColorTileInCol(x, y, tiles[i].colorId,true);
                 
                 if (targetFusionY!=-1 && tiles[xyToIndex(x,targetFusionY)].child==null){
                   int indexFusion = xyToIndex(x,targetFusionY);
@@ -197,6 +205,9 @@ class GameScene extends Scene implements HasBeenCollidedListener{
             }
             
           }
+          if (hasChanged()){
+            aTileHasBeenAlreadyGenerated = false;
+          }
         }
         return;
       }
@@ -206,7 +217,7 @@ class GameScene extends Scene implements HasBeenCollidedListener{
       
       if (Keyboard.getInstance().isPressed(KeyCode.D)){
         if (dHasBeenReleased){
-          aTileHasBeenAlreadyGenerated = false;
+          copy();
           dHasBeenReleased = false;
           
           for (int y=0; y<rows; y++){
@@ -214,7 +225,7 @@ class GameScene extends Scene implements HasBeenCollidedListener{
               int i = xyToIndex(x,y);
               if (tiles[i]!=null){
                 
-                int targetFusionX = this.getSameColorTileInRow(y, x, tiles[i].color,false);
+                int targetFusionX = this.getSameColorTileInRow(y, x, tiles[i].colorId,false);
                 if (targetFusionX!=-1 && tiles[xyToIndex(targetFusionX,y)].child==null){
                   int indexFusion = xyToIndex(targetFusionX,y);
                   
@@ -250,6 +261,9 @@ class GameScene extends Scene implements HasBeenCollidedListener{
             }
             
           }
+          if (hasChanged()){
+            aTileHasBeenAlreadyGenerated = false;
+          }
         }
         return;
       }
@@ -259,7 +273,7 @@ class GameScene extends Scene implements HasBeenCollidedListener{
       
       if (Keyboard.getInstance().isPressed(KeyCode.A)){
         if (aHasBeenReleased){
-          aTileHasBeenAlreadyGenerated = false;
+          copy();
           aHasBeenReleased = false;
           
           for (int y=0; y<rows; y++){
@@ -267,7 +281,7 @@ class GameScene extends Scene implements HasBeenCollidedListener{
               int i = xyToIndex(x,y);
               if (tiles[i]!=null){
                 
-                int targetFusionX = this.getSameColorTileInRow(y, x, tiles[i].color,true);
+                int targetFusionX = this.getSameColorTileInRow(y, x, tiles[i].colorId,true);
                 if (targetFusionX!=-1 && tiles[xyToIndex(targetFusionX,y)].child==null){
                   int indexFusion = xyToIndex(targetFusionX,y);
                   
@@ -302,6 +316,9 @@ class GameScene extends Scene implements HasBeenCollidedListener{
               
             }
             
+          }
+          if (hasChanged()){
+            aTileHasBeenAlreadyGenerated = false;
           }
         }
         return;
@@ -407,13 +424,13 @@ class GameScene extends Scene implements HasBeenCollidedListener{
     }
   }
   
-  int getSameColorTileInCol(int col, int start, Color color, [bool invert=false]){
+  int getSameColorTileInCol(int col, int start, int colorId, [bool invert=false]){
     if (invert){
       if (start>0){
         for (int y=start-1; y>=0; y--){
           int i = xyToIndex(col,y);
           if (tiles[i]!=null){
-            if (tiles[i].color==color){
+            if (tiles[i].colorId==colorId){
               return y;
             }
             else{
@@ -429,7 +446,7 @@ class GameScene extends Scene implements HasBeenCollidedListener{
         for (int y=start+1; y<rows; y++){
           int i = xyToIndex(col,y);
           if (tiles[i]!=null){
-            if (tiles[i].color==color){
+            if (tiles[i].colorId==colorId){
               return y;
             }
             else{
@@ -442,13 +459,13 @@ class GameScene extends Scene implements HasBeenCollidedListener{
     return -1;
   }
   
-  int getSameColorTileInRow(int row, int start, Color color, [bool invert=false]){
+  int getSameColorTileInRow(int row, int start, int colorId, [bool invert=false]){
     if (invert){
       if (start>0){
         for (int x=start-1; x>=0; x--){
           int i = xyToIndex(x,row);
           if (tiles[i]!=null){
-            if (tiles[i].color==color){
+            if (tiles[i].colorId==colorId){
               return x;
             }
             else{
@@ -464,7 +481,7 @@ class GameScene extends Scene implements HasBeenCollidedListener{
         for (int x=start+1; x<rows; x++){
           int i = xyToIndex(x,row);
           if (tiles[i]!=null){
-            if (tiles[i].color==color){
+            if (tiles[i].colorId==colorId){
               return x;
             }
             else{
@@ -502,52 +519,17 @@ class GameScene extends Scene implements HasBeenCollidedListener{
         if (n==-1){
           int special = rand.nextInt(5);
           if (special==0){
-            putTileInIndex(i,new Color.fromRGB(240, 200, 200));
+            putTileInIndex(i,1);
           }
           else{
-            putTileInIndex(i,new Color.fromRGB(240, 240, 240));
+            putTileInIndex(i,0);
           }
           print("Generado en: "+i.toString());
+          return i;
         }
       }
     }
-    
-    /*int rX = rand.nextInt(cols-1);
-    int rY = rand.nextInt(rows-1);
-    
-    int target = xyToIndex(rX,rY);
-    
-    //Si la casilla está libre.
-    if (tiles[target]==null){
-      //Ponemos...
-      putTileIn(rX,rY,new Color.fromRGB(240,240,240));
-      return target;
-    }
-    else{
-      //Buscamos un sitio libre...
-      int originalTarget = target; //Copia para más adelante.
-      for (target+=1; target<tiles.length-1; target++){
-        if (tiles[target]==null){
-          putTileInIndex(target,new Color.fromRGB(240,240,240));
-          return target;
-        }
-      }
-      
-      //Si hemos llegado hasta este punto es porque desde donde intentamos poner el tile hasta
-      //el final no hay huecos, pero quizá sí los había antes, entonces hacemos el recorrido
-      //al revés.
-      target = originalTarget;
-      
-      for (target-=1; target>0; target--){
-        if (tiles[target]==null){
-          putTileInIndex(target,new Color.fromRGB(240,240,240));
-          return target;
-        }
-      }
-      
-      //Y si llegamos hasta este punto... Es porque no quedan casillas libres. ¡Fin del juego!
-      return -1;
-    }*/
+    return -1;
     
   }
   
@@ -567,21 +549,22 @@ class GameScene extends Scene implements HasBeenCollidedListener{
     }
   }
   
-  void putTileIn(int x, int y, Color color){
+  void putTileIn(int x, int y, int colorId){
     int index = xyToIndex(x,y);
     
     if (tiles[index]==null){
       tiles[index] = new Tile(tileWidth,tileHeight,this);
       tiles[index].x = x*tileWidth;
       tiles[index].y = y*tileHeight;
-      tiles[index].setColor(color);
+      tiles[index].setColor(colorId);
+      tiles[index].restartAnimation();
     }
     
   }
-  void putTileInIndex(int index, Color color){
+  void putTileInIndex(int index, int colorId){
     if (tiles[index]==null){
       Point p = xyFromIndex(index);
-      putTileIn(p.x,p.y,color);
+      putTileIn(p.x,p.y,colorId);
     }    
   }
   
@@ -589,6 +572,21 @@ class GameScene extends Scene implements HasBeenCollidedListener{
     int y = (index~/cols);
     int x = (index-(y*cols)).toInt();
     return new Point(x,y);
+  }
+  
+  void  copy(){
+    for (int i = 0; i<tiles.length; i++){
+      copyTiles[i] = tiles[i];
+    }
+  }
+  bool hasChanged(){
+    for (int i = 0; i<tiles.length; i++){
+      if (copyTiles[i]!=tiles[i]){
+        print(i);
+        return true;
+      }
+    }
+    return false;
   }
   
 }

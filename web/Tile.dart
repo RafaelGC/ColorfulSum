@@ -4,11 +4,14 @@ import "dart:html";
 
 import "Color.dart";
 import "HasBeenCollidedListener.dart";
+import "ColorList.dart" as myColorList;
 
 class Tile{
   double x, y;
+  double animationPosX, animationPosY;
   num width, height;
-  Color color;
+  num targetWidth, targetHeight;
+  int colorId;
   static final SPEED = 2000; 
   
   double targetX, targetY;
@@ -21,14 +24,14 @@ class Tile{
   bool animation;
   
   Tile(num width, num height, HasBeenCollidedListener hasBeenCollidedListener){
-    x=y=0.0;
+    x=y=animationPosX=animationPosY=0.0;
     targetX = targetY = 0.0;
     movingHorizontal = false;
     movingVertical = false;
-    this.width = width;
-    this.height = height;
+    this.width = this.targetWidth = width;
+    this.height = this.targetHeight = height;
 
-    color = new Color.fromRGB(255, 255, 255);
+    colorId = 0;
     
     child = null;
     
@@ -39,23 +42,26 @@ class Tile{
   
   void restartAnimation(){
     animation = true;
+    this.width = 0;
+    this.height = 0;
+    
   }
   
   void render(CanvasRenderingContext2D target){
     if (child!=null){
       child.render(target);
     }
-    target.setFillColorRgb(color.r, color.g, color.b);
-    target.fillRect(x, y, width, height);
+    target.setFillColorRgb(myColorList.colorList[colorId].r, myColorList.colorList[colorId].g, myColorList.colorList[colorId].b);
+    target.fillRect(animationPosX+x, animationPosY+y, width, height);
     
     target.setStrokeColorRgb(0, 0, 0);
-    target.strokeRect(x, y, width, height);
+    target.strokeRect(animationPosX+x, animationPosY+y, width, height);
     
   }
   
   
-  void setColor(Color newColor){
-    this.color = newColor;
+  void setColor(int colorId){
+    this.colorId = colorId;
   }
   
   bool isMoving(){
@@ -71,9 +77,7 @@ class Tile{
       if (child.isMoving()==false){
         child = null;
         //¡Me lo he comido! Debo cambiar mi color...
-        color.r-=0;
-        color.g-=40;
-        color.b-=40;
+        colorId++;
         //Llamamos al listener (aunque no debería ser nunca nulo, compruebo si lo es).
         if (hasBeenCollidedListener!=null){
           hasBeenCollidedListener.hasBeenCollided();
@@ -123,6 +127,26 @@ class Tile{
           movingVertical = false;
         }
       }
+    }
+    
+    if (this.animation){
+      if (width<targetWidth){
+        width+=(deltaTime*500);
+        if (width>=targetWidth){
+          width = targetWidth;
+          animation = false;
+        }
+      }
+      if (height<targetHeight){
+        height+=(deltaTime*500);
+        if (height>=targetHeight){
+          height = targetHeight;
+          animation = false;
+        }
+      }
+      
+      animationPosX = (targetWidth-width)/2;
+      animationPosY = (targetHeight-height)/2;
       
     }
   }

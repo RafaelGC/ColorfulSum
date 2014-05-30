@@ -1,9 +1,13 @@
-import 'dart:html';
+import "dart:html";
+
 import "SceneManager.dart" as mySceneManager;
 import "GameScene.dart";
 import "GameOverScene.dart";
+import "ColorList.dart" as myColorList;
 
 void main() {
+  
+  myColorList.initialize();
   
   CanvasElement canvas = querySelector("#canvas");
   mySceneManager.initialize();
