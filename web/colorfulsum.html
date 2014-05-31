@@ -8,6 +8,16 @@
   </head>
   <body>
   
+    <div id="fb-root"></div>
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/es_ES/sdk.js#xfbml=1&appId=285644068221234&version=v2.0";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+  
     <table align="center">
     <tr>
     <td colspan="2"><h1>Colorful Sum</h1></td>
@@ -18,13 +28,20 @@
     </tr>
     <tr>
     <td colspan="2">
+    <div class="fb-like" data-href="https://developers.facebook.com/docs/plugins/" data-layout="standard" data-action="like" data-show-faces="false" data-share="true"></div>    </td>
+    </tr>
+    <tr>
+    <td colspan="2" align="center">
     <canvas id="canvas" width="400" height="400"></canvas>
     </td>
+    </tr>
+    <tr>
+    <td colspan="2" align="center"><input id="restartButton" type="button" class="button" value="Restart"></td>
     </tr>
     </table>
     
     <hr>
-    <center>Rafael González - 2014</center>
+    <p align="center"><a target="_blank" href="http://www.exesoft.comli.com">Rafael González</a> - 2014</p>
     <hr>
     
     <script type="application/dart" src="colorfulsum.dart"></script>

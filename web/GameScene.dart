@@ -22,6 +22,8 @@ class GameScene extends Scene implements HasBeenCollidedListener{
   int score;
   int bestScore;
   SpanElement scoreElement, bestScoreElement;
+  InputElement restartButton;
+  
   
   GameScene(CanvasRenderingContext2D target, num width, num height):super(target,width,height){
     rows = 4;
@@ -43,21 +45,29 @@ class GameScene extends Scene implements HasBeenCollidedListener{
     sHasBeenReleased = true;
     dHasBeenReleased = true;
     
-    score = 0;
-    bestScore = 0;
+
+    
     scoreElement = querySelector("#score");
     bestScoreElement = querySelector("#bestScore");
+    
+    restartButton = querySelector("#restartButton");
+    restartButton.onClick.listen(restartGame);
+    
+    if (window.localStorage.containsKey("csBestScore")){
+      
+      bestScore = int.parse(window.localStorage["csBestScore"]);
+      bestScoreElement.innerHtml = bestScore.toString();
+    }
+    else{
+      bestScore = 0;
+    }
     
   }
   
   void onActivate(){
     super.onActivate();
-    clearMap();
-    generateStartingTiles();
-    aTileHasBeenAlreadyGenerated = true;
     
-    score = 0;
-    scoreElement.innerHtml = "0";
+    restartGame(null);
   }
   
   void manageEvents(double deltaTime){
@@ -69,6 +79,8 @@ class GameScene extends Scene implements HasBeenCollidedListener{
             if (score>bestScore){
               bestScore = score;
               bestScoreElement.innerHtml = bestScore.toString();
+              
+              window.localStorage["csBestScore"] = bestScore.toString();
             }
             
             mySceneManager.activateScene("gameOverScene");
@@ -514,6 +526,15 @@ class GameScene extends Scene implements HasBeenCollidedListener{
     return y*cols+x;
   }
   
+  void restartGame(Event ev){
+    clearMap();
+    generateStartingTiles();
+    aTileHasBeenAlreadyGenerated = true;
+     
+    score = 0;
+    scoreElement.innerHtml = "0";
+  }
+  
   void generateStartingTiles(){
     generateRandomTile();
     generateRandomTile();
@@ -540,7 +561,6 @@ class GameScene extends Scene implements HasBeenCollidedListener{
           else{
             putTileInIndex(i,0);
           }
-          print("Generado en: "+i.toString());
           return i;
         }
       }
@@ -598,7 +618,6 @@ class GameScene extends Scene implements HasBeenCollidedListener{
   bool hasChanged(){
     for (int i = 0; i<tiles.length; i++){
       if (copyTiles[i]!=tiles[i]){
-        print(i);
         return true;
       }
     }

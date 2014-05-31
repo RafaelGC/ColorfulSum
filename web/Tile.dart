@@ -2,15 +2,15 @@ library Tile;
 
 import "dart:html";
 
-import "Color.dart";
 import "HasBeenCollidedListener.dart";
 import "ColorList.dart" as myColorList;
 
 class Tile{
   double x, y;
   double animationPosX, animationPosY;
+  
   num width, height;
-  num targetWidth, targetHeight;
+  num originalWidth, originalHeight;
   int colorId;
   static final SPEED = 2000; 
   
@@ -23,13 +23,14 @@ class Tile{
   
   bool animation;
   
+  
   Tile(num width, num height, HasBeenCollidedListener hasBeenCollidedListener){
     x=y=animationPosX=animationPosY=0.0;
     targetX = targetY = 0.0;
     movingHorizontal = false;
     movingVertical = false;
-    this.width = this.targetWidth = width;
-    this.height = this.targetHeight = height;
+    this.width = this.originalWidth = width;
+    this.height = this.originalHeight = height;
 
     colorId = 0;
     
@@ -52,10 +53,10 @@ class Tile{
       child.render(target);
     }
     target.setFillColorRgb(myColorList.colorList[colorId].r, myColorList.colorList[colorId].g, myColorList.colorList[colorId].b);
-    target.fillRect(animationPosX+x, animationPosY+y, width, height);
+    target.fillRect(animationPosX+x,animationPosY+y, width, height);
     
     target.setStrokeColorRgb(0, 0, 0);
-    target.strokeRect(animationPosX+x, animationPosY+y, width, height);
+    target.strokeRect(animationPosX+x,animationPosY+y, width, height);
     
   }
   
@@ -82,6 +83,7 @@ class Tile{
         if (hasBeenCollidedListener!=null){
           hasBeenCollidedListener.hasBeenCollided(this);
         }
+        
       }
     }
     
@@ -130,25 +132,26 @@ class Tile{
     }
     
     if (this.animation){
-      if (width<targetWidth){
+      if (width<originalWidth){
         width+=(deltaTime*500);
-        if (width>=targetWidth){
-          width = targetWidth;
+        if (width>=originalWidth){
+          width = originalWidth;
           animation = false;
         }
       }
-      if (height<targetHeight){
+      if (height<originalHeight){
         height+=(deltaTime*500);
-        if (height>=targetHeight){
-          height = targetHeight;
+        if (height>=originalHeight){
+          height = originalHeight;
           animation = false;
         }
       }
       
-      animationPosX = (targetWidth-width)/2;
-      animationPosY = (targetHeight-height)/2;
+      animationPosX = (originalWidth-width)/2;
+      animationPosY = (originalHeight-height)/2;
       
     }
+
   }
 
 }
