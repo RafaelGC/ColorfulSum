@@ -4,6 +4,7 @@ import "dart:html";
 
 import "HasBeenCollidedListener.dart";
 import "ColorList.dart" as myColorList;
+import "Color.dart";
 
 class Tile{
   double x, y;
@@ -11,8 +12,9 @@ class Tile{
   
   num width, height;
   num originalWidth, originalHeight;
-  int colorId;
-  static final SPEED = 2000; 
+  int _colorId;
+  static final SPEED = 2000;
+  static final TRANSITION_SPEED = 1000;
   
   double targetX, targetY;
   bool movingHorizontal, movingVertical;
@@ -23,6 +25,9 @@ class Tile{
   
   bool animation;
   
+  Color currentColor;
+  Color targetColor;
+  
   
   Tile(num width, num height, HasBeenCollidedListener hasBeenCollidedListener){
     x=y=animationPosX=animationPosY=0.0;
@@ -32,13 +37,18 @@ class Tile{
     this.width = this.originalWidth = width;
     this.height = this.originalHeight = height;
 
-    colorId = 0;
+
     
     child = null;
     
     this.hasBeenCollidedListener = hasBeenCollidedListener;
     
     animation = false;
+    
+    currentColor = new Color.fromRGB(0, 0, 0);
+    targetColor = new Color.fromRGB(255, 0, 0);
+    
+    colorId = 0;
   }
   
   void restartAnimation(){
@@ -52,7 +62,8 @@ class Tile{
     if (child!=null){
       child.render(target);
     }
-    target.setFillColorRgb(myColorList.colorList[colorId].r, myColorList.colorList[colorId].g, myColorList.colorList[colorId].b);
+    
+    target.setFillColorRgb(currentColor.r.toInt(), currentColor.g.toInt(), currentColor.b.toInt());
     target.fillRect(animationPosX+x,animationPosY+y, width, height);
     
     target.setStrokeColorRgb(0, 0, 0);
@@ -60,10 +71,18 @@ class Tile{
     
   }
   
-  
-  void setColor(int colorId){
-    this.colorId = colorId;
+  set colorId(int colorId){
+    this._colorId = colorId;
+    targetColor.copy(myColorList.colorList[colorId]);
   }
+  
+  void setTargetAndCurrentId(int colorId){
+    this._colorId = colorId;
+    targetColor.copy(myColorList.colorList[colorId]);
+    currentColor.copy(targetColor);
+  }
+  
+  get colorId => _colorId;
   
   bool isMoving(){
     return (movingHorizontal||movingVertical);
@@ -87,6 +106,50 @@ class Tile{
       }
     }
     
+    
+    //Tansición del color
+    //Red
+    if (currentColor.r<targetColor.r){
+      currentColor.r+=(TRANSITION_SPEED*deltaTime);
+      if (currentColor.r>targetColor.r){
+        currentColor.r = targetColor.r;
+      }
+    }
+    else if (currentColor.r>targetColor.r){
+      currentColor.r-=(TRANSITION_SPEED*deltaTime);
+      if (currentColor.r<targetColor.r){
+        currentColor.r=targetColor.r;
+      }
+    }
+    //Green
+    if (currentColor.g<targetColor.g){
+      currentColor.g+=(TRANSITION_SPEED*deltaTime);
+      if (currentColor.g>targetColor.g){
+        currentColor.g = targetColor.g;
+      }
+    }
+    else if (currentColor.g>targetColor.g){
+      currentColor.g-=(TRANSITION_SPEED*deltaTime);
+      if (currentColor.g<targetColor.g){
+        currentColor.g=targetColor.g;
+      }
+    }
+    //Blue
+    if (currentColor.b<targetColor.b){
+      currentColor.b+=(TRANSITION_SPEED*deltaTime);
+      if (currentColor.b>targetColor.b){
+        currentColor.b = targetColor.b;
+      }
+    }
+    else if (currentColor.b>targetColor.b){
+      currentColor.b-=(TRANSITION_SPEED*deltaTime);
+      if (currentColor.b<targetColor.b){
+        currentColor.b=targetColor.b;
+      }
+    }
+    
+    
+    //Movimiento
     if (x==targetX){
       movingHorizontal = false;
     }

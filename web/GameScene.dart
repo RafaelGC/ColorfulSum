@@ -8,6 +8,7 @@ import "Scene.dart";
 import "Keyboard.dart";
 import "Tile.dart";
 import "HasBeenCollidedListener.dart";
+import "Color.dart";
 
 class GameScene extends Scene implements HasBeenCollidedListener{
   
@@ -23,7 +24,6 @@ class GameScene extends Scene implements HasBeenCollidedListener{
   int bestScore;
   SpanElement scoreElement, bestScoreElement;
   InputElement restartButton;
-  
   
   GameScene(CanvasRenderingContext2D target, num width, num height):super(target,width,height){
     rows = 4;
@@ -70,6 +70,17 @@ class GameScene extends Scene implements HasBeenCollidedListener{
     restartGame(null);
   }
   
+  void gameloop(double deltaTime){
+    if (currentState!=Scene.INACTIVE){
+      if (currentState==Scene.ACTIVE){
+        manageEvents(deltaTime);
+      }
+      logic(deltaTime);
+      render();
+    }
+  }
+  
+  
   void manageEvents(double deltaTime){
     if (areAllTilesStopped()){
       if (this.countFreeTiles()==0){
@@ -81,6 +92,10 @@ class GameScene extends Scene implements HasBeenCollidedListener{
               bestScoreElement.innerHtml = bestScore.toString();
               
               window.localStorage["csBestScore"] = bestScore.toString();
+            }
+            
+            for (Tile t in tiles){
+              t.targetColor = new Color.fromRGB(0, 0, 0);
             }
             
             mySceneManager.activateScene("gameOverScene");
@@ -533,6 +548,7 @@ class GameScene extends Scene implements HasBeenCollidedListener{
      
     score = 0;
     scoreElement.innerHtml = "0";
+    
   }
   
   void generateStartingTiles(){
@@ -592,7 +608,7 @@ class GameScene extends Scene implements HasBeenCollidedListener{
       tiles[index] = new Tile(tileWidth,tileHeight,this);
       tiles[index].x = x*tileWidth;
       tiles[index].y = y*tileHeight;
-      tiles[index].setColor(colorId);
+      tiles[index].setTargetAndCurrentId(colorId);
       tiles[index].restartAnimation();
     }
     

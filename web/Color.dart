@@ -1,7 +1,7 @@
 library Color;
 
 class Color{
-  int r, g, b;
+  num r, g, b;
   
   Color(){
     r=g=b=0;
@@ -17,11 +17,11 @@ class Color{
     r = number>>16;
     
     //Utilizo r como máscara para filtrar el rojo del entero.
-    int rMask = r<<16;
+    int rMask = r.toInt()<<16;
     g = ((~rMask)&number)>>8;
     
     //Combinamos rMask con la nueva máscara que elimina también el verde.
-    int gMask = g<<8;
+    int gMask = g.toInt()<<8;
     int rgMask = rMask+gMask;
     
     b = (~rgMask)&number;
@@ -30,7 +30,24 @@ class Color{
   
   operator==(Color c) => c.r==r && c.g==g && c.b==b;
   
+  void copy(Color c){
+    this.r = c.r;
+    this.g = c.g;
+    this.b = c.b;
+  }
+  
   String toString() => "$r,$g,$b";
+  
+  int toInt(){
+    return getIntFromRGB(r,g,b);
+  }
+  
+  void fromInteger(int value){
+    Color c = new Color.fromInt(value);
+    this.r = c.r;
+    this.g = c.g;
+    this.b = c.b;
+  }
   
   static Color getRGBFromInt(int number){
     return new Color.fromInt(number);

@@ -38,6 +38,7 @@ void loop(Timer t){
   num now = window.performance.now();
   num deltaTime = (now-_previousTime)/1000;
   _previousTime = now;
+  
 
   Iterable<Scene> iterator = _scenes.values;
   for (Scene scene in iterator){
