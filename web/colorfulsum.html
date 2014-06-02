@@ -1,20 +1,20 @@
-<!DOCTYPE html>
-
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>ColorfulSum</title>
-    <link rel="stylesheet" href="colorfulsum.css">
-    
-    <meta name="description" content="Hola mundo!" />
-    
-<link rel="image_src" href="https://www.google.es/images/srpr/logo1w.png" />
-    
-  </head>
-  <body>
-  <div id="shareTwitter" style="position:absolute;top:0px;left:0px;visibility:hidden;display:none;">
-  </div>
-    <div id="fb-root"></div>
+
+<head>
+<meta charset="UTF-8">
+<title>Colorful Sum - An adictive game about mixing tiles</title>
+<link rel="stylesheet" type="text/css" href="colorfulsum.css">
+<meta name="description" content="Colorful Sum is a web browser game in which you have to merge tiles with the same color.">
+</head>
+
+<body>
+
+<!--- COSAS PARA TWITTER --->
+
+<div id="shareTwitter" style="position:absolute;top:0px;left:0px;visibility:hidden;display:none;"></div>
+
+
+<!--- COSAS DE FACEBOOK --->
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
@@ -23,34 +23,33 @@
   js.src = "//connect.facebook.net/es_ES/sdk.js#xfbml=1&appId=285644068221234&version=v2.0";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
-  
-    <table align="center">
-    <tr>
-    <td colspan="2"><h1>Colorful Sum</h1></td>
-    </tr>
-    <tr>
-    <td width="50%"><p class="score">Score: <span id="score">0</span></p></td>
-    <td width="50%"><p class="score">Best: <span id="bestScore">0</span></td>
-    </tr>
-    <tr>
-    <td colspan="2">
-    <div class="fb-like" data-href="https://dl.dropboxusercontent.com/u/62300048/ColorfulSum/colorfulsum.html" data-layout="standard" data-action="like" data-show-faces="false" data-share="true"></div>    </td>
-    </tr>
-    <tr>
-    <td colspan="2" align="center">
-    <canvas id="canvas" width="400" height="400"></canvas>
-    </td>
-    </tr>
-    <tr>
-    <td colspan="2" align="center"><input id="restartButton" type="button" class="button" value="Restart"></td>
-    </tr>
-    </table>
-    
-    <hr>
-    <p align="center"><a target="_blank" href="http://www.exesoft.comli.com">Rafael González</a> - 2014</p>
-    <hr>
-    
-    <script type="application/dart" src="colorfulsum.dart"></script>
-    <script src="packages/browser/dart.js"></script>
-  </body>
+<!--- FIN DE COSAS DE FACEBOOK--->
+
+<div id="wrapper">
+<h1>Colorful Sum</h1>
+
+<!--- MÁS COSAS DE FACEBOOK ---->
+<div class="fb-like" data-href="https://dl.dropboxusercontent.com/u/62300048/ColorfulSum/colorfulsum.html" data-layout="standard" data-action="like" data-show-faces="false" data-share="true"></div>
+
+<!--- FIN ></!--->
+
+<div class="scoreLeft">Score: <span id="score">0</span></div>
+<div class="scoreRight">Best: <span id="bestScore">0</span></div>
+<canvas id="canvas" width="400px" height="400px" style="background-color:blue">Canvas not supported! Update your browser.</canvas>
+<div class="centerDiv"><input type="button" class="button" value="Restart" id="restartButton"></div>
+<div class="info"><h2>How to play</h2>You have to merge the tiles with the same color. In order to achieve that, you can move all the tiles of your board by pressing W, A, S or D. Each time you press a key a new tile is generated.
+<h2>Credits</h2>
+Programmed by <a href="http://www.exesoft.comli.com" target="_blank">Rafael González</a>.<br>
+Based on <a href="http://gabrielecirulli.github.io/2048/" target="_blank">2048</a> by Gabriele Cirulli.
+
+</div>
+<div id="footer">Rafael González - 2014</div>
+</div>
+
+
+<script type="application/dart" src="colorfulsum.dart"></script>
+<script src="packages/browser/dart.js"></script>
+
+</body>
+
 </html>
