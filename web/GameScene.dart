@@ -1,4 +1,4 @@
-library Scene;
+library GameScene;
 
 import "dart:html";
 import "dart:math";
@@ -24,10 +24,16 @@ class GameScene extends Scene implements HasBeenCollidedListener{
   int bestScore;
   SpanElement scoreElement, bestScoreElement;
   InputElement restartButton;
+  DivElement shareTwitter;
+  Element shareTwitterButton;
+  CanvasElement canvasElement;
+  
   
   GameScene(CanvasRenderingContext2D target, num width, num height):super(target,width,height){
     rows = 4;
     cols = 4;
+    
+    
     
     tileWidth = width/cols;
     tileHeight = height/rows;
@@ -62,6 +68,12 @@ class GameScene extends Scene implements HasBeenCollidedListener{
       bestScore = 0;
     }
     
+    shareTwitter = querySelector("#shareTwitter");
+    canvasElement = querySelector("#canvas");
+    shareTwitterButton = querySelector("#shareTwitterButton");
+    
+    
+
   }
   
   void onActivate(){
@@ -97,6 +109,22 @@ class GameScene extends Scene implements HasBeenCollidedListener{
             for (Tile t in tiles){
               t.targetColor = new Color.fromRGB(0, 0, 0);
             }
+            
+            final NodeValidatorBuilder _htmlValidator=new NodeValidatorBuilder.common()
+              ..allowElement('a', attributes: ['data-via', 'data-count','data-text','href'])
+              ..allowElement("script")
+              ..allowElement("span", attributes:['style']);
+                //data-via=\"twitter_id\"
+            shareTwitter.setInnerHtml("""<a href=\"https://twitter.com/share\" class=\"twitter-share-button\" data-text=\"I scored $score points in Colorful Sum! Play it on:\" data-count=\"horizontal\">Tweet</a>
+                <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                <span style=\"color:white\">Share your score in Twitter!</span>""",validator:_htmlValidator);
+            
+            
+            shareTwitter.style.visibility="visible";
+            shareTwitter.style.display="block";
+            shareTwitter.style.top=canvasElement.borderEdge.top.toString()+"px";
+            shareTwitter.style.left=canvasElement.borderEdge.left.toString()+"px";
+            
             
             mySceneManager.activateScene("gameOverScene");
             this.onPause();
@@ -548,6 +576,11 @@ class GameScene extends Scene implements HasBeenCollidedListener{
      
     score = 0;
     scoreElement.innerHtml = "0";
+    
+    shareTwitter.style.visibility = "hidden";
+    shareTwitter.style.display = "none";
+    
+    
     
   }
   
